@@ -40,7 +40,7 @@ class JournalViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun updateFilter(plantType: PlantType?, rarity: Rarity?) {
-        _filter.value = PlantFilter(type = plantType, rarity = rarity)
+        _filter.value = PlantFilter(plantType = plantType, rarity = rarity)
     }
 
     fun updateSearch(query: String) {

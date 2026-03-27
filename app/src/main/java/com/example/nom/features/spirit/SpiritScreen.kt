@@ -109,6 +109,7 @@ private fun getEvolutionStageName(stageIndex: Int): String {
 fun FloatingParticles() {
     var particles by remember { mutableStateOf(emptyList<Offset>()) }
     var particleRadii by remember { mutableStateOf(emptyList<Float>()) }
+    var particleAlphas by remember { mutableStateOf(emptyList<Float>()) }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -118,17 +119,16 @@ fun FloatingParticles() {
                     y = Random.nextFloat()
                 )
             }
-            particleRadii = (0..50).map {
-                Random.nextFloat() * 5
-            }
-            delay(100)
+            particleRadii = (0..50).map { Random.nextFloat() * 5 }
+            particleAlphas = (0..50).map { Random.nextFloat() * 0.6f + 0.1f }
+            delay(2000) // slow drift — no flicker
         }
     }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         particles.forEachIndexed { index, particle ->
             drawCircle(
-                color = NomGreenAccent.copy(alpha = Random.nextFloat()),
+                color = NomGreenAccent.copy(alpha = particleAlphas.getOrElse(index) { 0.3f }),
                 radius = particleRadii.getOrElse(index) { 2f },
                 center = Offset(
                     x = particle.x * size.width,

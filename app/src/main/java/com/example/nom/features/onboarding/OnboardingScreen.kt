@@ -4,7 +4,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -73,12 +75,27 @@ fun OnboardingScreen(
         ) { page ->
             when (page) {
                 0 -> {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(bottom = 100.dp)) {
-                        Box(modifier = Modifier.height(200.dp).fillMaxWidth(0.6f)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .height(200.dp)
+                                .fillMaxWidth(0.6f),
+                            contentAlignment = Alignment.Center
+                        ) {
                             SpiritView(emotion = SpiritEmotion.HAPPY, evolutionStage = 0)
                         }
+                        Spacer(modifier = Modifier.height(32.dp))
+                        OnboardingPage(
+                            "Welcome to Nom",
+                            "Discover the world of plants and nurture your own digital spirit."
+                        )
                     }
-                    OnboardingPage("Welcome to Nom", "Discover the world of plants and nurture your own digital spirit.")
                 }
                 1 -> OnboardingPage("Scan & Identify", "Use your camera to identify any plant, flower, or tree around you.")
                 2 -> OnboardingPage("Nurture & Evolve", "Feed your spirit with your discoveries and watch it grow and change.")

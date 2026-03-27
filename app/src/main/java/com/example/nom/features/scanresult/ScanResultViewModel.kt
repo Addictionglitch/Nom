@@ -54,7 +54,8 @@ class ScanResultViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val scanId = savedStateHandle.get<String>("scanId")
+            val scanIdStr = savedStateHandle.get<String>("scanId")
+            val scanId = scanIdStr?.toLongOrNull()
             if (scanId != null) {
                 when (val result = getScanResultUseCase(scanId)) {
                     is Result.Success -> {
