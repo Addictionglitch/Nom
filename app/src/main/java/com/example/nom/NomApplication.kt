@@ -15,11 +15,6 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-/**
- * The main application class for the Nom app.
- *
- * This class is responsible for setting up Hilt, WorkManager, and the offline plant cache.
- */
 @HiltAndroidApp
 class NomApplication : Application(), Configuration.Provider {
 
@@ -29,16 +24,17 @@ class NomApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var offlinePlantCache: OfflinePlantCache
 
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
-    }
 
     override fun onCreate() {
         super.onCreate()
         setupRecurringWork()
-        loadOfflinePlantCache()
+        CoroutineScope(Dispatchers.IO).launch {
+            offlinePlantCache.loadOfflinePlants()
+        }
     }
 
     private fun setupRecurringWork() {
@@ -50,11 +46,5 @@ class NomApplication : Application(), Configuration.Provider {
             ExistingPeriodicWorkPolicy.KEEP,
             repeatingRequest
         )
-    }
-
-    private fun loadOfflinePlantCache() {
-        CoroutineScope(Dispatchers.Main).launch {
-            offlinePlantCache.loadOfflinePlants()
-        }
     }
 }

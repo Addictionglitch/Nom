@@ -3,6 +3,7 @@ package com.example.nom.di
 import android.content.Context
 import com.example.nom.core.data.local.NomDatabase
 import com.example.nom.core.data.local.SecurePreferences
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -67,4 +68,8 @@ object AppModule {
     @Provides
     @DefaultDispatcher
     fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson = Gson()
 }

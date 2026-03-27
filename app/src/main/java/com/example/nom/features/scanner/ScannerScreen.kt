@@ -47,7 +47,7 @@ fun ScannerScreen(
                                 object : ImageCapture.OnImageCapturedCallback() {
                                     override fun onCaptureSuccess(image: ImageProxy) {
                                         val bitmap = image.toBitmap()
-                                        viewModel.captureImage(bitmap)
+                                        viewModel.captureImage(bitmap, imageUri = "")  // TODO: Get real URI from ImageCapture output
                                         image.close()
                                     }
 

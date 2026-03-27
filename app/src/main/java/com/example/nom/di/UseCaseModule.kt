@@ -1,6 +1,5 @@
 package com.example.nom.di
 
-import com.example.nom.core.data.local.PlantDao
 import com.example.nom.core.data.local.ScanHistoryDao
 import com.example.nom.core.domain.repositories.PlantRepository
 import com.example.nom.core.domain.repositories.SpiritRepository
@@ -10,6 +9,7 @@ import com.example.nom.core.domain.usecases.FeedSpiritUseCase
 import com.example.nom.core.domain.usecases.GetScanResultUseCase
 import com.example.nom.core.domain.usecases.GetSpiritStateUseCase
 import com.example.nom.core.domain.usecases.ScanPlantUseCase
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,8 +20,8 @@ import dagger.hilt.android.components.ViewModelComponent
 object UseCaseModule {
 
     @Provides
-    fun provideGetScanResultUseCase(scanHistoryDao: ScanHistoryDao, plantDao: PlantDao): GetScanResultUseCase {
-        return GetScanResultUseCase(scanHistoryDao, plantDao)
+    fun provideGetScanResultUseCase(scanHistoryDao: ScanHistoryDao, gson: Gson): GetScanResultUseCase {
+        return GetScanResultUseCase(scanHistoryDao, gson)
     }
 
     @Provides

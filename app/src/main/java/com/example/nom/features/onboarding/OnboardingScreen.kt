@@ -1,6 +1,7 @@
 package com.example.nom.features.onboarding
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,9 +9,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.nom.features.onboarding.components.OnboardingPage
 import com.example.nom.features.onboarding.components.SpiritNamingDialog
-import com.google.accompanist.pager.HorizontalPagerIndicator
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -66,10 +69,20 @@ fun OnboardingScreen(
                 Box {}
             }
 
-            HorizontalPagerIndicator(
-                pagerState = pagerState,
-                pageCount = 3,
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(3) { index ->
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                color = if (pagerState.currentPage == index)
+                                    MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                shape = CircleShape
+                            )
+                    )
+                }
+            }
 
             if (pagerState.currentPage < 2) {
                 Button(onClick = { /* TODO: Next */ }) {

@@ -24,7 +24,7 @@ fun PlantGridCard(plant: Plant, onClick: () -> Unit) {
         Box(modifier = Modifier.fillMaxSize()) {
             // TODO: Load image
             Text(
-                text = plant.name,
+                text = plant.commonName,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .background(Color.Black.copy(alpha = 0.5f))

@@ -2,10 +2,10 @@ package com.example.nom.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Games
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,21 +30,21 @@ fun BottomNavBar(navController: NavController) {
             actions = {
                 IconButton(onClick = { navController.navigate(NomRoutes.Spirit.route) }) {
                     Icon(
-                        Icons.Default.Pets,
+                        Icons.Default.Home,
                         contentDescription = "Spirit",
                         tint = if (currentRoute == NomRoutes.Spirit.route) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
                 IconButton(onClick = { navController.navigate(NomRoutes.Journal.route) }) {
                     Icon(
-                        Icons.Default.Book,
+                        Icons.Default.MenuBook,
                         contentDescription = "Journal",
                         tint = if (currentRoute == NomRoutes.Journal.route) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
                 IconButton(onClick = { navController.navigate(NomRoutes.Minigame.route) }) {
                     Icon(
-                        Icons.Default.Games,
+                        Icons.Default.SportsEsports,
                         contentDescription = "Minigame",
                         tint = if (currentRoute == NomRoutes.Minigame.route) MaterialTheme.colorScheme.primary else Color.Gray
                     )

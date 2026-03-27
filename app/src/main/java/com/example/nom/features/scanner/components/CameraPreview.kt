@@ -6,15 +6,20 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionRequired
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -23,13 +28,8 @@ fun CameraPreview(
 ) {
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     val lifecycleOwner = LocalLifecycleOwner.current
-    val coroutineScope = rememberCoroutineScope()
 
-    PermissionRequired(
-        permissionState = cameraPermissionState,
-        permissionNotGrantedContent = { /* ... */ },
-        permissionNotAvailableContent = { /* ... */ }
-    ) {
+    if (cameraPermissionState.status.isGranted) {
         AndroidView(
             factory = { context ->
                 val previewView = PreviewView(context).apply {
@@ -59,5 +59,15 @@ fun CameraPreview(
                 previewView
             }
         )
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
+                Text("Grant Camera Permission")
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            cameraPermissionState.launchPermissionRequest()
+        }
     }
 }
