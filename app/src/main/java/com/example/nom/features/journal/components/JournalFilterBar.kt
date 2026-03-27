@@ -1,11 +1,14 @@
 package com.example.nom.features.journal.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -13,6 +16,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -20,10 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.nom.core.domain.models.PlantType
 import com.example.nom.core.domain.models.Rarity
+import com.example.nom.ui.theme.NomGreenAccent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,8 +54,11 @@ fun JournalFilterBar(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Row {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            LazyRow(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(PlantType.values()) { type ->
                     FilterChip(
                         selected = selectedPlantType == type,
@@ -56,22 +66,39 @@ fun JournalFilterBar(
                             selectedPlantType = if (selectedPlantType == type) null else type
                             onFilterChanged(selectedPlantType, selectedRarity)
                         },
-                        label = { Text(type.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                        label = { Text(type.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = NomGreenAccent.copy(alpha = 0.2f),
+                            selectedLabelColor = NomGreenAccent
+                        )
                     )
                 }
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Rarity")
-            DropdownMenu(
-                expanded = showRarityDropdown,
-                onDismissRequest = { showRarityDropdown = false }
-            ) {
-                Rarity.values().forEach { rarity ->
-                    DropdownMenuItem(text = { Text(rarity.name) }, onClick = {
-                        selectedRarity = rarity
-                        onFilterChanged(selectedPlantType, selectedRarity)
+            Box {
+                Text(
+                    text = selectedRarity?.name ?: "Rarity",
+                    modifier = Modifier
+                        .clickable { showRarityDropdown = true }
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    color = if (selectedRarity != null) NomGreenAccent else Color.Gray
+                )
+                DropdownMenu(
+                    expanded = showRarityDropdown,
+                    onDismissRequest = { showRarityDropdown = false }
+                ) {
+                    DropdownMenuItem(text = { Text("All") }, onClick = {
+                        selectedRarity = null
+                        onFilterChanged(selectedPlantType, null)
                         showRarityDropdown = false
                     })
+                    Rarity.values().forEach { rarity ->
+                        DropdownMenuItem(text = { Text(rarity.name) }, onClick = {
+                            selectedRarity = rarity
+                            onFilterChanged(selectedPlantType, selectedRarity)
+                            showRarityDropdown = false
+                        })
+                    }
                 }
             }
         }
