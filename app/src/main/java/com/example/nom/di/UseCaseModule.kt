@@ -1,10 +1,13 @@
 package com.example.nom.di
 
+import com.example.nom.core.data.local.PlantDao
+import com.example.nom.core.data.local.ScanHistoryDao
 import com.example.nom.core.domain.repositories.PlantRepository
 import com.example.nom.core.domain.repositories.SpiritRepository
 import com.example.nom.core.domain.usecases.DecaySpiritStatsUseCase
 import com.example.nom.core.domain.usecases.EvolveSpiritUseCase
 import com.example.nom.core.domain.usecases.FeedSpiritUseCase
+import com.example.nom.core.domain.usecases.GetScanResultUseCase
 import com.example.nom.core.domain.usecases.GetSpiritStateUseCase
 import com.example.nom.core.domain.usecases.ScanPlantUseCase
 import dagger.Module
@@ -15,6 +18,11 @@ import dagger.hilt.android.components.ViewModelComponent
 @Module
 @InstallIn(ViewModelComponent::class)
 object UseCaseModule {
+
+    @Provides
+    fun provideGetScanResultUseCase(scanHistoryDao: ScanHistoryDao, plantDao: PlantDao): GetScanResultUseCase {
+        return GetScanResultUseCase(scanHistoryDao, plantDao)
+    }
 
     @Provides
     fun provideGetSpiritStateUseCase(spiritRepository: SpiritRepository): GetSpiritStateUseCase {

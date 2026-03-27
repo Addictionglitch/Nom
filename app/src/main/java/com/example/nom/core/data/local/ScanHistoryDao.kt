@@ -11,6 +11,9 @@ interface ScanHistoryDao {
     @Query("SELECT * FROM scan_history ORDER BY timestamp DESC")
     fun getScanHistory(): Flow<List<ScanHistoryEntity>>
 
+    @Query("SELECT * FROM scan_history WHERE id = :id")
+    suspend fun getScanById(id: Long): ScanHistoryEntity?
+
     /**
      * Retrieves all scans within a specific date range, ordered by the most recent first.
      * @param from The start timestamp of the range.
