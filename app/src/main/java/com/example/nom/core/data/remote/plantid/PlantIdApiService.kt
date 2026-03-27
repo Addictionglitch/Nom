@@ -23,13 +23,8 @@ interface PlantIdApiService {
     ): PlantIdResponse
 }
 
-/**
- * Data class for the identification request body.
- *
- * @param images A list of base64-encoded images.
- * @param similar_images Whether to return similar images in the response.
- */
 data class IdentificationRequest(
     val images: List<String>,
-    val similar_images: Boolean = true
+    val similar_images: Boolean = true,
+    val plant_details: List<String> = listOf("common_names", "taxonomy", "edible_parts")
 )
