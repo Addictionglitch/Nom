@@ -9,10 +9,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.nom.core.data.SecurePreferences
+import com.example.nom.core.data.local.SecurePreferences
 import com.example.nom.features.evolution.EvolutionTreeScreen
 import com.example.nom.features.evolution.SpiritStatusScreen
 import com.example.nom.features.journal.JournalScreen
+import com.example.nom.features.journal.PlantDetailScreen
 import com.example.nom.features.minigame.MinigameScreen
 import com.example.nom.features.minigame.garden.GardenMinigameScreen
 import com.example.nom.features.onboarding.OnboardingScreen
@@ -64,7 +65,7 @@ fun NomNavGraph(
             arguments = NomRoutes.PlantDetail.arguments
         ) {
             Box(modifier = Modifier.padding(paddingValues)) {
-                // PlantDetailScreen is not defined in the prompt, so I'm leaving it as a placeholder
+                PlantDetailScreen(navController = navController, viewModel = hiltViewModel())
             }
         }
         composable(NomRoutes.Evolution.route) {
