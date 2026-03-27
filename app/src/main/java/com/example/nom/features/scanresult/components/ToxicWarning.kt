@@ -1,39 +1,63 @@
 package com.example.nom.features.scanresult.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.nom.ui.theme.NomRed
 
 @Composable
 fun ToxicWarning(visible: Boolean) {
-    AnimatedVisibility(visible = visible) {
-        Column(
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+            initialOffsetY = { -50 },
+            animationSpec = tween(500)
+        )
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Red.copy(alpha = 0.7f))
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(NomRed.copy(alpha = 0.15f))
+                .border(1.dp, NomRed.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "Toxic plant!",
-                color = Color.White,
-                fontSize = 20.sp
+            Icon(
+                Icons.Outlined.Warning,
+                contentDescription = null,
+                tint = NomRed,
+                modifier = Modifier.size(20.dp)
             )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Your Spirit can handle it, but this plant is not safe for humans to eat.",
-                color = Color.White,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
+                text = "Toxic Plan! Do not feed to Spirit.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = NomRed
             )
         }
     }

@@ -70,12 +70,12 @@ fun NomNavGraph(
         }
         composable(NomRoutes.Evolution.route) {
             Box(modifier = Modifier.padding(paddingValues)) {
-                EvolutionTreeScreen()
+                EvolutionTreeScreen(navController)
             }
         }
         composable(NomRoutes.SpiritStatus.route) {
             Box(modifier = Modifier.padding(paddingValues)) {
-                SpiritStatusScreen()
+                SpiritStatusScreen(navController)
             }
         }
         composable(NomRoutes.Minigame.route) {

@@ -5,68 +5,95 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.nom.core.domain.models.SpiritEmotion
+import com.example.nom.ui.theme.NomGold
 import com.example.nom.ui.theme.NomGreenAccent
+import com.example.nom.ui.theme.NomRed
 import com.example.nom.ui.theme.NomTealSpirit
+import com.example.nom.ui.theme.NomTheme
 
-/**
- * A placeholder for the Spirit view.
- *
- * TODO: Replace with Spine 2D animation.
- *
- * @param emotion The current emotion of the Spirit.
- * @param evolutionStage The current evolution stage of the Spirit.
- */
 @Composable
 fun SpiritView(emotion: SpiritEmotion, evolutionStage: Int) {
-    val scale = remember { Animatable(1f) }
+    val pulse = remember { Animatable(110f) }
 
     LaunchedEffect(emotion) {
-        scale.animateTo(
-            targetValue = 0.95f,
+        pulse.animateTo(
+            targetValue = 120f,
             animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 1500),
+                animation = tween(durationMillis = 2000),
                 repeatMode = RepeatMode.Reverse
             )
         )
     }
 
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        scale(scale.value) {
-            val spiritColor = when (emotion) {
-                SpiritEmotion.HAPPY -> NomTealSpirit
-                SpiritEmotion.CURIOUS -> NomGreenAccent
-                SpiritEmotion.SLEEPY -> Color(0xFF6366F1) // indigo
-                SpiritEmotion.QUEASY -> Color(0xFFF87171) // soft red
-                SpiritEmotion.EXCITED -> Color(0xFFFBBF24) // gold
-            }
+    val gradientColors = when (emotion) {
+        SpiritEmotion.HAPPY -> listOf(NomTealSpirit, NomGreenAccent)
+        SpiritEmotion.CURIOUS -> listOf(NomGreenAccent, NomGold.copy(alpha = 0.7f))
+        SpiritEmotion.SLEEPY -> listOf(Color(0xFF6366F1), Color(0xFF818CF8))
+        SpiritEmotion.QUEASY -> listOf(NomRed, Color(0xFFFF8A80))
+        SpiritEmotion.EXCITED -> listOf(NomGold, NomGreenAccent)
+    }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Canvas(modifier = Modifier.size(180.dp).padding(bottom = 16.dp)) {
+            val centerOffset = Offset(size.width / 2, size.height / 2)
+            
+            // Outer glow ring
             drawCircle(
-                color = spiritColor,
-                radius = size.minDimension / 2.5f
+                color = NomTealSpirit.copy(alpha = 0.1f),
+                radius = pulse.value.dp.toPx(),
+                center = centerOffset
             )
+
+            // Main body
             drawCircle(
-                color = Color.White.copy(alpha = 0.8f),
-                radius = size.minDimension / 10f,
-                center = center + Offset(
-                    x = size.minDimension / 8f,
-                    y = -size.minDimension / 8f
-                )
+                brush = Brush.linearGradient(
+                    colors = gradientColors,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, size.height)
+                ),
+                radius = 60.dp.toPx(),
+                center = centerOffset
+            )
+
+            // Inner highlight
+            drawCircle(
+                color = Color.White.copy(alpha = 0.15f),
+                radius = 16.dp.toPx(),
+                center = centerOffset + Offset(-20.dp.toPx(), -20.dp.toPx())
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = emotion.name,
+            style = MaterialTheme.typography.labelMedium,
+            color = gradientColors.first()
+        )
     }
 }
 
 @Preview
 @Composable
 fun SpiritViewPreview() {
-    SpiritView(emotion = SpiritEmotion.HAPPY, evolutionStage = 1)
+    NomTheme {
+        SpiritView(emotion = SpiritEmotion.CURIOUS, evolutionStage = 1)
+    }
 }

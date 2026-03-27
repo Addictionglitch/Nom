@@ -6,8 +6,17 @@ import androidx.compose.runtime.Composable
 
 private val DarkColorScheme = darkColorScheme(
     primary = NomGreenAccent,
+    onPrimary = NomDarkBg,
     secondary = NomTealSpirit,
-    background = NomDarkBg
+    background = NomDarkBg,
+    surface = NomDarkSurface,
+    surfaceVariant = NomDarkCard,
+    onBackground = NomTextPrimary,
+    onSurface = NomTextPrimary,
+    onSurfaceVariant = NomTextSecondary,
+    error = NomRed,
+    tertiary = NomGreenAccent,    // for the scanner FAB
+    outline = NomGlassBorder
 )
 
 @Composable

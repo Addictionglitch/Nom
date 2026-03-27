@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,29 +12,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.nom.core.domain.models.Rarity
+import com.example.nom.ui.theme.NomGold
+import com.example.nom.ui.theme.NomGreenAccent
+import com.example.nom.ui.theme.NomGreenDark
+import com.example.nom.ui.theme.NomTheme
 
 @Composable
-fun RarityBadge(rarity: Rarity) {
-    val color = when (rarity) {
-        Rarity.COMMON -> Color.Gray
-        Rarity.UNCOMMON -> Color.Green
-        Rarity.RARE -> Color.Blue
-        Rarity.LEGENDARY -> Color.Magenta
+fun RarityBadge(rarity: Rarity, modifier: Modifier = Modifier) {
+    val (bgColor, textColor) = when (rarity) {
+        Rarity.COMMON    -> Color(0xFF374151) to Color(0xFF9CA3AF)
+        Rarity.UNCOMMON  -> NomGreenDark to NomGreenAccent
+        Rarity.RARE      -> Color(0xFF1E3A5F) to Color(0xFF60A5FA)
+        Rarity.LEGENDARY -> Color(0xFF78350F) to NomGold
     }
     Box(
-        modifier = Modifier
-            .background(color, RoundedCornerShape(4.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+        modifier = modifier
+            .background(bgColor, RoundedCornerShape(8.dp))
+            .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
-        Text(
-            text = rarity.name,
-            color = Color.White
-        )
+        Text(rarity.name, color = textColor, style = MaterialTheme.typography.labelMedium)
     }
 }
 
 @Preview
 @Composable
 fun RarityBadgePreview() {
-    RarityBadge(Rarity.RARE)
+    NomTheme {
+        RarityBadge(Rarity.RARE)
+    }
 }
