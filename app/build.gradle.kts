@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -22,9 +25,18 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "PLANT_ID_API_KEY", "\"${project.findProperty("PLANT_ID_API_KEY") ?: ""}\"")
-        buildConfigField("String", "SUPABASE_URL", "\"${project.findProperty("SUPABASE_URL") ?: ""}\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${project.findProperty("SUPABASE_ANON_KEY") ?: ""}\"")
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(FileInputStream(localPropertiesFile))
+        }
+        fun getProp(name: String): String {
+            return localProperties.getProperty(name) ?: project.findProperty(name)?.toString() ?: ""
+        }
+
+        buildConfigField("String", "PLANT_ID_API_KEY", "\"2b10LtZEeSNmFpALEVQJJ0lLTu\"")
+        buildConfigField("String", "SUPABASE_URL", "\"${getProp("SUPABASE_URL")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${getProp("SUPABASE_ANON_KEY")}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
