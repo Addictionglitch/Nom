@@ -1,5 +1,6 @@
 package com.example.nom.core.domain.usecases
 
+import com.example.nom.analytics.AnalyticsTracker
 import com.example.nom.core.domain.models.ScanResult
 import com.example.nom.core.domain.repositories.PlantRepository
 import com.example.nom.core.domain.repositories.SpiritRepository
@@ -15,12 +16,14 @@ import javax.inject.Inject
  * @param spiritRepository The repository for managing the Spirit.
  * @param feedSpiritUseCase The use case for feeding the Spirit.
  * @param evolveSpiritUseCase The use case for evolving the Spirit.
+ * @param analyticsTracker The analytics tracker.
  */
 class ScanPlantUseCase @Inject constructor(
     private val plantRepository: PlantRepository,
     private val spiritRepository: SpiritRepository,
     private val feedSpiritUseCase: FeedSpiritUseCase,
-    private val evolveSpiritUseCase: EvolveSpiritUseCase
+    private val evolveSpiritUseCase: EvolveSpiritUseCase,
+    private val analyticsTracker: AnalyticsTracker
 ) {
 
     /**
@@ -32,6 +35,16 @@ class ScanPlantUseCase @Inject constructor(
     suspend operator fun invoke(imageBase64: String, imageUri: String): Result<ScanResult> {
         val scanResult = plantRepository.scanPlant(imageBase64, imageUri)
         if (scanResult is Result.Success) {
+            analyticsTracker.trackEvent(
+                AnalyticsTracker.PLANT_SCANNED,
+                mapOf("species" to scanResult.data.plant.scientificName)
+            )
+            if (scanResult.data.isNewDiscovery) {
+                analyticsTracker.trackEvent(
+                    AnalyticsTracker.DISCOVERY,
+                    mapOf("species" to scanResult.data.plant.scientificName)
+                )
+            }
             val spirit = spiritRepository.observeSpirit().first()
             if (spirit != null) {
                 val feedResult = feedSpiritUseCase(spirit, scanResult.data.plant, scanResult.data.isNewDiscovery)

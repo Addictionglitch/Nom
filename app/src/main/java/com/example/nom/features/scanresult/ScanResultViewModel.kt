@@ -11,7 +11,9 @@ import com.example.nom.core.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,11 +24,11 @@ sealed class ScanResultUiState {
     /** The scan result is loading. */
     object Loading : ScanResultUiState()
     /** A new plant has been discovered. */
-    data class NewDiscovery(val scanResult: ScanResult) : ScanResultUiState()
+    data class NewDiscovery(val scanResult: ScanResult, val hasFed: Boolean = false) : ScanResultUiState()
     /** A toxic plant has been scanned. */
-    data class ToxicResult(val scanResult: ScanResult) : ScanResultUiState()
+    data class ToxicResult(val scanResult: ScanResult, val hasFed: Boolean = false) : ScanResultUiState()
     /** A non-toxic plant has been scanned. */
-    data class PositiveResult(val scanResult: ScanResult) : ScanResultUiState()
+    data class PositiveResult(val scanResult: ScanResult, val hasFed: Boolean = false) : ScanResultUiState()
     /** An error occurred while loading the scan result. */
     data class Error(val message: String) : ScanResultUiState()
 }
@@ -48,18 +50,18 @@ class ScanResultViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ScanResultUiState>(ScanResultUiState.Loading)
-    val uiState: StateFlow<ScanResultUiState> = _uiState
+    val uiState: StateFlow<ScanResultUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val scanId = savedStateHandle.get<Long>("scanId")
+            val scanId = savedStateHandle.get<String>("scanId")
             if (scanId != null) {
                 when (val result = getScanResultUseCase(scanId)) {
                     is Result.Success -> {
                         val scanResult = result.data
                         _uiState.value = when {
                             scanResult.isNewDiscovery -> ScanResultUiState.NewDiscovery(scanResult)
-                            scanResult.isToxicResult -> ScanResultUiState.ToxicResult(scanResult)
+                            scanResult.plant.isToxic -> ScanResultUiState.ToxicResult(scanResult)
                             else -> ScanResultUiState.PositiveResult(scanResult)
                         }
                     }
@@ -79,14 +81,24 @@ class ScanResultViewModel @Inject constructor(
     fun feedSpirit() {
         viewModelScope.launch {
             val currentState = _uiState.value
-            if (currentState is ScanResultUiState.PositiveResult || currentState is ScanResultUiState.NewDiscovery || currentState is ScanResultUiState.ToxicResult) {
-                val scanResult = (currentState as? ScanResultUiState.PositiveResult)?.scanResult
-                    ?: (currentState as? ScanResultUiState.NewDiscovery)?.scanResult
-                    ?: (currentState as? ScanResultUiState.ToxicResult)?.scanResult
-                if (scanResult != null) {
-                    val spirit = getSpiritStateUseCase().first()
-                    if (spirit != null) {
-                        feedSpiritUseCase(spirit, scanResult.plant, scanResult.isNewDiscovery)
+            val scanResult = when (currentState) {
+                is ScanResultUiState.PositiveResult -> currentState.scanResult
+                is ScanResultUiState.NewDiscovery -> currentState.scanResult
+                is ScanResultUiState.ToxicResult -> currentState.scanResult
+                else -> null
+            }
+
+            if (scanResult != null) {
+                val spirit = getSpiritStateUseCase().first()
+                if (spirit != null) {
+                    feedSpiritUseCase(spirit, scanResult.plant, scanResult.isNewDiscovery)
+                    _uiState.update {
+                        when (it) {
+                            is ScanResultUiState.NewDiscovery -> it.copy(hasFed = true)
+                            is ScanResultUiState.PositiveResult -> it.copy(hasFed = true)
+                            is ScanResultUiState.ToxicResult -> it.copy(hasFed = true)
+                            else -> it
+                        }
                     }
                 }
             }

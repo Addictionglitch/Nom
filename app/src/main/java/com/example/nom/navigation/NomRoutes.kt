@@ -22,4 +22,5 @@ sealed class NomRoutes(val route: String) {
     object Profile : NomRoutes("profile")
     object Settings : NomRoutes("settings")
     object Auth : NomRoutes("auth")
+    object GardenMinigame : NomRoutes("garden_minigame")
 }

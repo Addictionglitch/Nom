@@ -6,8 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun NomButton(onClick: () -> Unit, text: String) {
-    Button(onClick = onClick) {
+fun NomButton(onClick: () -> Unit, text: String, enabled: Boolean = true) {
+    Button(onClick = onClick, enabled = enabled) {
         Text(text)
     }
 }

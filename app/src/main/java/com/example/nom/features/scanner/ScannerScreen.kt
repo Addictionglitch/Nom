@@ -1,13 +1,20 @@
 package com.example.nom.features.scanner
 
-import android.graphics.Bitmap
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,17 +22,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.nom.features.scanner.components.CameraPreview
 import com.example.nom.features.scanner.components.ScanOverlay
+import com.example.nom.navigation.NomRoutes
 import com.example.nom.ui.components.ErrorState
 import com.example.nom.ui.components.LoadingState
+import com.example.nom.ui.theme.NomGreenAccent
 
 @Composable
 fun ScannerScreen(
+    navController: NavController,
     viewModel: ScannerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -33,14 +47,25 @@ fun ScannerScreen(
     val haptics = LocalHapticFeedback.current
     var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                is NavigationEvent.ToScanResult -> {
+                    navController.navigate(NomRoutes.ScanResult.createRoute(event.scanId))
+                }
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         CameraPreview(onImageCapture = { imageCapture = it })
         ScanOverlay()
 
         when (val state = uiState) {
             is ScannerUiState.Ready -> {
-                Button(
+                FloatingActionButton(
                     onClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         imageCapture?.let {
                             it.takePicture(
                                 ContextCompat.getMainExecutor(context),
@@ -58,13 +83,30 @@ fun ScannerScreen(
                             )
                         }
                     },
-                    modifier = Modifier.align(Alignment.BottomCenter)
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 32.dp),
+                    containerColor = NomGreenAccent,
+                    shape = CircleShape
                 ) {
-                    Text("Capture")
+                    Icon(
+                        imageVector = Icons.Default.Camera,
+                        contentDescription = "Capture",
+                        modifier = Modifier.size(40.dp)
+                    )
                 }
             }
             is ScannerUiState.Capturing -> LoadingState()
-            is ScannerUiState.Processing -> LoadingState()
+            is ScannerUiState.Processing -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Processing...", color = Color.White)
+                }
+            }
             is ScannerUiState.Error -> ErrorState(message = state.message)
         }
     }

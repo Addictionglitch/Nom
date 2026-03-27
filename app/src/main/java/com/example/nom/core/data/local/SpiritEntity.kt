@@ -2,7 +2,10 @@ package com.example.nom.core.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.nom.core.domain.models.PlantType
 import com.example.nom.core.domain.models.Spirit
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 /**
  * Represents a spirit in the local database.
@@ -43,22 +46,30 @@ data class SpiritEntity(
 /**
  * Converts a [SpiritEntity] to a [Spirit] domain model.
  */
-fun SpiritEntity.toDomain() = Spirit(
-    id = id,
-    name = name,
-    evolutionStage = evolutionStage,
-    xp = xp,
-    hunger = hunger,
-    happiness = happiness,
-    energy = energy,
-    dietComposition = emptyMap(), // Will be handled by a type converter
-    lastFedTimestamp = lastFedTimestamp,
-    streakDays = streakDays,
-    totalScans = totalScans,
-    speciesDiscovered = speciesDiscovered,
-    createdAt = createdAt,
-    level = level
-)
+fun SpiritEntity.toDomain(): Spirit {
+    val gson = Gson()
+    val mapType = object : TypeToken<Map<PlantType, Float>>() {}.type
+    val parsedDiet: Map<PlantType, Float> = try {
+        if (dietComposition.isNotBlank()) gson.fromJson(dietComposition, mapType) else emptyMap()
+    } catch (e: Exception) { emptyMap() }
+
+    return Spirit(
+        id = id,
+        name = name,
+        evolutionStage = evolutionStage,
+        xp = xp,
+        hunger = hunger,
+        happiness = happiness,
+        energy = energy,
+        dietComposition = parsedDiet,
+        lastFedTimestamp = lastFedTimestamp,
+        streakDays = streakDays,
+        totalScans = totalScans,
+        speciesDiscovered = speciesDiscovered,
+        createdAt = createdAt,
+        level = level
+    )
+}
 
 /**
  * Converts a [Spirit] to a [SpiritEntity] for database storage.
@@ -71,7 +82,7 @@ fun Spirit.toEntity() = SpiritEntity(
     hunger = hunger,
     happiness = happiness,
     energy = energy,
-    dietComposition = "", // Will be handled by a type converter
+    dietComposition = Gson().toJson(dietComposition),
     lastFedTimestamp = lastFedTimestamp,
     streakDays = streakDays,
     totalScans = totalScans,

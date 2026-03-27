@@ -2,12 +2,15 @@ package com.example.nom.features.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nom.core.domain.models.PlantType
+import com.example.nom.core.domain.models.Rarity
 import com.example.nom.core.domain.models.Spirit
+import com.example.nom.core.domain.repositories.PlantRepository
 import com.example.nom.core.domain.repositories.SpiritRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,17 +23,18 @@ data class Achievement(
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val spiritRepository: SpiritRepository
+    private val spiritRepository: SpiritRepository,
+    private val plantRepository: PlantRepository
 ) : ViewModel() {
 
     val spirit: StateFlow<Spirit?> = spiritRepository.observeSpirit()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    val achievements: StateFlow<List<Achievement>> = spirit.map { spirit ->
+    val achievements: StateFlow<List<Achievement>> = spirit.combine(plantRepository.observePlants()) { spirit, plants ->
         if (spirit == null) {
             emptyList()
         } else {
-            checkAchievements(spirit)
+            checkAchievements(spirit, plants)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -42,20 +46,18 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun checkAchievements(spirit: Spirit): List<Achievement> {
+    private fun checkAchievements(spirit: Spirit, plants: List<com.example.nom.core.domain.models.Plant>): List<Achievement> {
         return listOf(
             Achievement("First Scan", spirit.totalScans >= 1),
             Achievement("10 Species", spirit.speciesDiscovered >= 10),
             Achievement("50 Species", spirit.speciesDiscovered >= 50),
-            // TODO: Add logic for rarity
-            Achievement("First Rare", false),
-            Achievement("First Legendary", false),
+            Achievement("First Rare", plants.any { it.rarity == Rarity.RARE }),
+            Achievement("First Legendary", plants.any { it.rarity == Rarity.LEGENDARY }),
             Achievement("7 Day Streak", spirit.streakDays >= 7),
             Achievement("30 Day Streak", spirit.streakDays >= 30),
             Achievement("Stage 2", spirit.evolutionStage >= 2),
             Achievement("Stage 3", spirit.evolutionStage >= 3),
-            // TODO: Add logic for diet composition
-            Achievement("Mushroom Hunter", false)
+            Achievement("Mushroom Hunter", spirit.dietComposition.containsKey(PlantType.MUSHROOM))
         )
     }
 }

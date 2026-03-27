@@ -2,10 +2,13 @@ package com.example.nom.features.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nom.analytics.AnalyticsTracker
 import com.example.nom.core.data.local.SecurePreferences
 import com.example.nom.core.domain.repositories.SpiritRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -13,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val spiritRepository: SpiritRepository,
-    private val securePreferences: SecurePreferences
+    private val securePreferences: SecurePreferences,
+    private val analyticsTracker: AnalyticsTracker
 ) : ViewModel() {
 
     private val _currentPage = MutableStateFlow(0)
@@ -21,6 +25,9 @@ class OnboardingViewModel @Inject constructor(
 
     private val _showNamingDialog = MutableStateFlow(false)
     val showNamingDialog = _showNamingDialog.asStateFlow()
+
+    private val _navigateToSpirit = MutableSharedFlow<Unit>()
+    val navigateToSpirit = _navigateToSpirit.asSharedFlow()
 
     fun onPageChanged(page: Int) {
         _currentPage.value = page
@@ -38,7 +45,8 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             spiritRepository.createSpirit(name)
             securePreferences.onboardingCompleted = true
-            // TODO: Navigate to Spirit home and clear backstack
+            analyticsTracker.trackEvent(AnalyticsTracker.ONBOARDING_COMPLETED)
+            _navigateToSpirit.emit(Unit)
         }
     }
 }
