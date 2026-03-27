@@ -31,4 +31,7 @@ interface ScanHistoryDao {
 
     @Query("UPDATE scan_history SET isSynced = 1 WHERE id IN (:ids)")
     suspend fun markScansAsSynced(ids: List<Long>)
+
+    @Query("DELETE FROM scan_history")
+    suspend fun clear()
 }

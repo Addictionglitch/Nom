@@ -17,6 +17,13 @@ interface PlantRepository {
     fun observePlants(): Flow<List<Plant>>
 
     /**
+     * Gets a plant by its ID.
+     * @param id The ID of the plant.
+     * @return A Flow of the plant.
+     */
+    fun getPlantById(id: String): Flow<Plant>
+
+    /**
      * Scans a plant.
      * @param imageBase64 The base64-encoded image of the plant.
      * @param imageUri The URI of the image.

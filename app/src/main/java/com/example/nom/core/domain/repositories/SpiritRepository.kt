@@ -17,10 +17,10 @@ interface SpiritRepository {
 
     /**
      * Creates a new Spirit.
-     * @param spirit The Spirit to create.
-     * @return A Result indicating success or failure.
+     * @param name The name of the Spirit.
+     * @return A Result containing the created Spirit.
      */
-    suspend fun createSpirit(spirit: Spirit): Result<Unit>
+    suspend fun createSpirit(name: String): Result<Spirit>
 
     /**
      * Updates the Spirit.
@@ -28,4 +28,10 @@ interface SpiritRepository {
      * @return A Result indicating success or failure.
      */
     suspend fun updateSpirit(spirit: Spirit): Result<Unit>
+
+    /**
+     * Applies the rewards from the garden minigame.
+     * @return A Result indicating success or failure.
+     */
+    suspend fun applyGardenRewards(): Result<Unit>
 }

@@ -10,7 +10,9 @@ import com.example.nom.core.domain.models.Rarity
 @Entity(tableName = "plants")
 data class PlantEntity(
     @PrimaryKey val id: String,
-    val name: String,
+    val commonName: String,
+    val scientificName: String,
+    val imageUrl: String,
     val description: String,
     val type: PlantType,
     val rarity: Rarity,
@@ -19,7 +21,9 @@ data class PlantEntity(
 
 fun PlantEntity.toDomain() = Plant(
     id = id,
-    name = name,
+    commonName = commonName,
+    scientificName = scientificName,
+    imageUrl = imageUrl,
     description = description,
     type = type,
     rarity = rarity,
@@ -28,7 +32,9 @@ fun PlantEntity.toDomain() = Plant(
 
 fun Plant.toEntity() = PlantEntity(
     id = id,
-    name = name,
+    commonName = commonName,
+    scientificName = scientificName,
+    imageUrl = imageUrl,
     description = description,
     type = type,
     rarity = rarity,

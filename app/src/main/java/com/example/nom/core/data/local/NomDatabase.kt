@@ -21,7 +21,8 @@ import net.sqlcipher.database.SupportFactory
  */
 @Database(
     entities = [SpiritEntity::class, PlantEntity::class, ScanHistoryEntity::class],
-    version = 2
+    version = 2,
+    exportSchema = false
 )
 @TypeConverters(com.example.nom.core.data.local.TypeConverters::class)
 abstract class NomDatabase : RoomDatabase() {

@@ -8,32 +8,26 @@ import com.example.nom.core.domain.usecases.ScanPlantUseCase
 import com.example.nom.core.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
-/**
- * Sealed class representing the UI state for the Scanner screen.
- */
 sealed class ScannerUiState {
-    /** The scanner is ready to capture an image. */
     object Ready : ScannerUiState()
-    /** An image is being captured. */
     object Capturing : ScannerUiState()
-    /** The captured image is being processed. */
     object Processing : ScannerUiState()
-    /** An error occurred during the scanning process. */
     data class Error(val message: String) : ScannerUiState()
 }
 
-/**
- * ViewModel for the Scanner screen.
- *
- * @param scanPlantUseCase The use case for scanning a plant.
- */
+sealed class NavigationEvent {
+    data class ToScanResult(val scanId: String) : NavigationEvent()
+}
+
 @HiltViewModel
 class ScannerViewModel @Inject constructor(
     private val scanPlantUseCase: ScanPlantUseCase
@@ -42,21 +36,19 @@ class ScannerViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ScannerUiState>(ScannerUiState.Ready)
     val uiState: StateFlow<ScannerUiState> = _uiState
 
-    /**
-     * Captures an image, processes it, and sends it to the ScanPlantUseCase.
-     *
-     * @param bitmap The bitmap of the captured image.
-     */
-    fun captureImage(bitmap: Bitmap) {
+    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
+
+    fun captureImage(bitmap: Bitmap, imageUri: String) {
         viewModelScope.launch {
             _uiState.value = ScannerUiState.Capturing
             val base64Image = withContext(Dispatchers.Default) {
                 bitmapToBase64(bitmap)
             }
             _uiState.value = ScannerUiState.Processing
-            when (val result = scanPlantUseCase(base64Image, "")) { // TODO: Get image URI
+            when (val result = scanPlantUseCase(base64Image, imageUri)) {
                 is Result.Success -> {
-                    // TODO: Navigate to ScanResult screen
+                    _navigationEvent.emit(NavigationEvent.ToScanResult(result.data.id))
                     _uiState.value = ScannerUiState.Ready
                 }
                 is Result.Error -> {

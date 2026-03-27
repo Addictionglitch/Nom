@@ -14,7 +14,10 @@ interface PlantDao {
     fun getAllPlants(): Flow<List<PlantEntity>>
 
     @Query("SELECT * FROM plants WHERE id = :id")
-    suspend fun getPlantById(id: String): PlantEntity?
+    fun getPlantById(id: String): Flow<PlantEntity>
+
+    @Query(value = "SELECT * FROM plants WHERE scientificName = :scientificName")
+    suspend fun getPlantByScientificName(scientificName: String): PlantEntity?
 
     @Query("SELECT * FROM plants WHERE type = :type")
     fun getPlantsByType(type: PlantType): Flow<List<PlantEntity>>
@@ -22,9 +25,12 @@ interface PlantDao {
     @Query("SELECT * FROM plants WHERE rarity = :rarity")
     fun getPlantsByRarity(rarity: Rarity): Flow<List<PlantEntity>>
 
-    @Query("SELECT * FROM plants WHERE name LIKE '%' || :query || '%'")
+    @Query("SELECT * FROM plants WHERE commonName LIKE '%' || :query || '%'")
     fun searchPlants(query: String): Flow<List<PlantEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(plants: List<PlantEntity>)
+
+    @Query("DELETE FROM plants")
+    suspend fun clear()
 }

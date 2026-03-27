@@ -17,4 +17,7 @@ interface SpiritDao {
 
     @Update
     suspend fun updateSpirit(spirit: SpiritEntity)
+
+    @Query("DELETE FROM spirits")
+    suspend fun clear()
 }
