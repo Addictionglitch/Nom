@@ -2,7 +2,11 @@ package com.example.nom.di
 
 import android.content.Context
 import com.example.nom.core.data.local.NomDatabase
+import com.example.nom.core.data.local.OfflinePlantCache
+import com.example.nom.core.data.local.PlantDao
+import com.example.nom.core.data.local.ScanHistoryDao
 import com.example.nom.core.data.local.SecurePreferences
+import com.example.nom.core.data.local.SpiritDao
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -72,4 +76,31 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGson(): Gson = Gson()
+
+    @Provides
+    @Singleton
+    fun provideSpiritDao(database: NomDatabase): SpiritDao {
+        return database.spiritDao()
+    }
+
+    @Provides
+    @Singleton
+    fun providePlantDao(database: NomDatabase): PlantDao {
+        return database.plantDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideScanHistoryDao(database: NomDatabase): ScanHistoryDao {
+        return database.scanHistoryDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOfflinePlantCache(
+        @ApplicationContext context: Context,
+        database: NomDatabase
+    ): OfflinePlantCache {
+        return OfflinePlantCache(context, database)
+    }
 }
