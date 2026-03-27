@@ -4,9 +4,8 @@ import android.content.Context
 import com.example.nom.core.domain.models.Plant
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * A class to handle loading a bundled offline plant cache into the Room database.
@@ -21,13 +20,14 @@ class OfflinePlantCache(
 
     /**
      * Loads the offline plant cache into the database if it hasn't been loaded before.
+     * This function is a suspend function and should be called from a coroutine.
      */
-    fun loadOfflinePlants() {
+    suspend fun loadOfflinePlants() {
         val sharedPreferences = context.getSharedPreferences("offline_cache", Context.MODE_PRIVATE)
         val isCacheLoaded = sharedPreferences.getBoolean("is_loaded", false)
 
         if (!isCacheLoaded) {
-            CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.IO) {
                 try {
                     val json = context.assets.open("offline_plants.json").bufferedReader().use { it.readText() }
                     val plantListType = object : TypeToken<List<Plant>>() {}.type

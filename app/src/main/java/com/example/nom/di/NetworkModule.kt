@@ -1,52 +1,59 @@
 package com.example.nom.di
 
+import com.example.nom.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.supabase.SupabaseClient
-import io.supabase.createSupabaseClient
-import io.supabase.gotrue.GoTrue
-import io.supabase.postgrest.Postgrest
-import io.supabase.storage.Storage
-import okhttp3.CertificatePinner
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.gotrue.GoTrue
+import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+/**
+ * Dagger Hilt module that provides network-related dependencies.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    /**
+     * Provides the [OkHttpClient] instance.
+     */
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
-        val certificatePinner = CertificatePinner.Builder()
-            .add("plant.id", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-            .add("plant.id", "sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=")
-            .build()
         return OkHttpClient.Builder()
-            .certificatePinner(certificatePinner)
             .build()
     }
 
+    /**
+     * Provides the [Retrofit] instance for the Plant.id API.
+     */
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.plant.id/v2/")
+            .baseUrl("https://plant.id/api/v3/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
+    /**
+     * Provides the [SupabaseClient] instance.
+     */
     @Provides
     @Singleton
     fun provideSupabaseClient(): SupabaseClient {
         return createSupabaseClient(
-            supabaseUrl = "YOUR_SUPABASE_URL",
-            supabaseKey = "YOUR_SUPABASE_KEY"
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
         ) {
             install(GoTrue)
             install(Postgrest)

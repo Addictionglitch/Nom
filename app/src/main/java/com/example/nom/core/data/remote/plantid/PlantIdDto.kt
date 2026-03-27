@@ -3,28 +3,30 @@ package com.example.nom.core.data.remote.plantid
 import com.google.gson.annotations.SerializedName
 
 /**
- * DTO for the main response from the Plant.id identification API.
+ * Data class for the main response from the Plant.id identification API.
  */
 data class PlantIdResponse(
-    val result: IdentificationResult
+    val result: IdentificationResult,
+    @SerializedName("similar_images")
+    val similarImages: List<SimilarImage>?
 )
 
 /**
- * DTO for the identification result.
+ * Data class for the identification result.
  */
 data class IdentificationResult(
     val classification: Classification
 )
 
 /**
- * DTO for the classification, containing a list of suggestions.
+ * Data class for the classification, containing a list of suggestions.
  */
 data class Classification(
     val suggestions: List<PlantSuggestion>
 )
 
 /**
- * DTO for a single plant suggestion from the API.
+ * Data class for a single plant suggestion from the API.
  */
 data class PlantSuggestion(
     val id: String,
@@ -34,31 +36,44 @@ data class PlantSuggestion(
 )
 
 /**
- * DTO for the detailed information about a plant suggestion.
+ * Data class for the detailed information about a plant suggestion.
  */
 data class PlantDetails(
     @SerializedName("common_names")
     val commonNames: List<String>?,
     val taxonomy: Taxonomy,
-    val edible_parts: EdibleParts?
+    @SerializedName("edible_parts")
+    val edibleParts: EdibleParts?
 )
 
 /**
- * DTO for the plant's taxonomy.
+ * Data class for the plant's taxonomy.
  */
 data class Taxonomy(
     @SerializedName("class")
-    val plantClass: String,
-    val family: String,
-    val genus: String,
-    val order: String,
-    val phylum: String,
-    val species: String
+    val plantClass: String?,
+    val family: String?,
+    val genus: String?,
+    val order: String?,
+    val phylum: String?,
+    val species: String?
 )
 
 /**
- * DTO for the plant's edible parts, used to determine toxicity.
+ * Data class for the plant's edible parts, used to determine toxicity.
  */
 data class EdibleParts(
     val value: Boolean?
+)
+
+/**
+ * Data class for a similar image from the API.
+ */
+data class SimilarImage(
+    val id: String,
+    val url: String,
+    @SerializedName("similarity")
+    val similarity: Float,
+    @SerializedName("url_small")
+    val urlSmall: String
 )

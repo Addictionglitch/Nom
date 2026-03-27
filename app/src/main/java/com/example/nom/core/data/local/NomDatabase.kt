@@ -8,7 +8,21 @@ import androidx.room.TypeConverters
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 
-@Database(entities = [SpiritEntity::class, PlantEntity::class, ScanHistoryEntity::class], version = 1)
+/**
+ * The Room database for the application.
+ *
+ * This database stores information about spirits, plants, and scan history.
+ * It uses SQLCipher for encryption.
+ *
+ * @see SpiritEntity
+ * @see PlantEntity
+ * @see ScanHistoryEntity
+ * @see TypeConverters
+ */
+@Database(
+    entities = [SpiritEntity::class, PlantEntity::class, ScanHistoryEntity::class],
+    version = 2
+)
 @TypeConverters(com.example.nom.core.data.local.TypeConverters::class)
 abstract class NomDatabase : RoomDatabase() {
 
@@ -20,6 +34,13 @@ abstract class NomDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: NomDatabase? = null
 
+        /**
+         * Gets the singleton instance of the database.
+         *
+         * @param context The application context.
+         * @param passphrase_char_array The passphrase for the encrypted database.
+         * @return The singleton instance of the database.
+         */
         fun getInstance(context: Context, passphrase_char_array: CharArray): NomDatabase {
             synchronized(this) {
                 var instance = INSTANCE
@@ -30,6 +51,7 @@ abstract class NomDatabase : RoomDatabase() {
                         NomDatabase::class.java,
                         "nom_database"
                     )
+                        .fallbackToDestructiveMigration()
                         .openHelperFactory(factory)
                         .build()
                     INSTANCE = instance
